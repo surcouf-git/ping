@@ -53,24 +53,45 @@ void print_struct(prog_t *prog) {
 	tabs(1);
 	printf("opt_t opts {\n");
 	tabs(2);
+	printf("int host_count = %d;\n", prog->opts.host_count);
+	tabs(2);
 	printf("char verbose = %i;\n", prog->opts.verbose);
+	tabs(2);
+	printf("int end_opt = %i;\n", prog->opts.end_opt);
 	tabs(1);
 	// == closing opts
 	printf("}\n");
+	// == ip list
 	tabs(1);
-	printf("frame_t frame {}\n");
+	printf("ip_t ip_list {\n");
+	ip_t *ptr = prog->ip_list;
+	int count = 0;
+	while (ptr) {
+		tabs(2);
+		printf("------------------------------------------------\n");
+		tabs(2);
+		printf("node: %i\n", count);
+		tabs(2);
+		printf("char *raw_hostname: %s\n", ptr->raw_hostname);
+		tabs(2);
+		printf("uint decimal_ip   : %u\n", ptr->decimal_ip);
+		//tabs(2);
+		ptr = ptr->next;
+		count++;
+	}
+	// == closing ip list
+	tabs(1);
+	printf("}\n");
 	// == closing prog
 	printf("}\n");
-	//tabs(2);
 	return ;
 }
 
 void push_back_new_host(ip_t **head, char *hostname) {
 	ip_t *new_node = malloc(sizeof(ip_t));
 
-	zero_memory((void *)new_node, sizeof(new_node));
+	zero_memory((void *)new_node, sizeof(ip_t));
 	new_node->raw_hostname = hostname;
-	new_node->next = NULL;
 
 	if (!(*head)) {
 		*head = new_node;

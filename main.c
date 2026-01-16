@@ -6,6 +6,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static void clean_up(prog_t *prog) {
+	ip_t *current = prog->ip_list, *next = NULL;
+	while (current) {
+		next = current->next;
+		free(current);
+		current = next;
+	}
+}
+
 static int run(int argc, char **argv, prog_t *prog) {
 	if (parse_input(argc, argv, prog) == PARSE_ERROR)
 		return (EXIT_FAILURE);
@@ -21,5 +30,7 @@ int main(int argc, char **argv) {
 	run(argc, argv, &prog); // TODO return ?
 
 	print_struct(&prog);
+
+	clean_up(&prog);
 	return (0);
 }

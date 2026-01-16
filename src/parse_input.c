@@ -72,5 +72,6 @@ int parse_input(int argc, char **argv, prog_t *prog) {
 				break ;
 		}
 	}
+	prog->opts.host_count = argc - optind;
 	return (save_given_hosts(optind, argc, argv, prog));
 }
