@@ -1,16 +1,25 @@
 #include "utils.h"
 #include "ping.h"
 #include "parse_input.h"
+#include "networking.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+
+static int run(int argc, char **argv, prog_t *prog) {
+	if (parse_input(argc, argv, prog) == PARSE_ERROR)
+		return (EXIT_FAILURE);
+
+	if (init_networking(prog) == NETWORKING_ERROR)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
+}
 
 int main(int argc, char **argv) {
-	prog_t	prog;
+	prog_t	prog = {};
 
-	init(&prog);
+	run(argc, argv, &prog); // TODO return ?
 
-	if (!parse_input(argc, argv, &prog))
-		;//return (2);
 	print_struct(&prog);
 	return (0);
 }

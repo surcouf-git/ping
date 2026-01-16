@@ -2,5 +2,5 @@
 #include "ping.h"
 
 void init(prog_t *prog) {
-	zero_memory((char *)prog, sizeof(prog_t));
+	zero_memory((void *)prog, sizeof(prog_t));
 }

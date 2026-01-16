@@ -2,6 +2,7 @@
 #include "messages.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include <unistd.h>
 #include <linux/limits.h>
@@ -22,14 +23,20 @@ int print_err(const char *error, int return_value) {
 	return (return_value);
 }
 
+int print_help() {
+	return (0);
+}
+
 int print_hint() {
 	printf("Try 'ft_ping --help' or 'ft_ping --usage' for more information.\n");
 	return (2);
 }
 
-void zero_memory(char *ptr, size_t size) {
+void zero_memory(void *ptr, size_t size) {
+	char *lptr = (char *)ptr;
+
 	for (size_t i = 0; i < size; i++) {
-		ptr[i] = '\0';
+		lptr[i] = 0;
 	}
 }
 
@@ -46,8 +53,6 @@ void print_struct(prog_t *prog) {
 	tabs(1);
 	printf("opt_t opts {\n");
 	tabs(2);
-	printf("char help = %i;\n", prog->opts.help);
-	tabs(2);
 	printf("char verbose = %i;\n", prog->opts.verbose);
 	tabs(1);
 	// == closing opts
@@ -58,4 +63,34 @@ void print_struct(prog_t *prog) {
 	printf("}\n");
 	//tabs(2);
 	return ;
+}
+
+void push_back_new_host(ip_t **head, char *hostname) {
+	ip_t *new_node = malloc(sizeof(ip_t));
+
+	zero_memory((void *)new_node, sizeof(new_node));
+	new_node->raw_hostname = hostname;
+	new_node->next = NULL;
+
+	if (!(*head)) {
+		*head = new_node;
+		return ;
+	}
+
+	ip_t *actual = *head;
+	while (actual && actual->next) {
+		actual = actual->next;
+	}
+
+	actual->next = new_node;
+}
+
+size_t host_list_size(ip_t *head) {
+	size_t i = 0;
+
+	while (head) {
+		head = head->next;
+		i++;
+	}
+	return (i);
 }

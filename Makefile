@@ -11,7 +11,7 @@ INCLUDES= -I include/
 NAME: all
 
 all:
-	@$(COMPILER) $(C_FLAGS) $(INCLUDES) $(SOURCES) -o ft_ping
+	$(COMPILER) $(C_FLAGS) $(INCLUDES) $(SOURCES) -o ft_ping
 
 exe: all
 	@./ft_ping
