@@ -2,19 +2,18 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #pragma pack(1)
 
-typedef struct icmp_hdr_s {
+typedef struct icmp_echo_s {
 	uint8_t		type;
 	uint8_t		code;
 	uint16_t	checksum;
-}	icmp_hdr_t;
-
-typedef struct icmp_s {
-	icmp_hdr_t	header;
-	void		*body;
-}	icmp_t;
+	uint16_t	identifier;
+	uint16_t	sequence_number;
+	char		data[32];
+}	icmp_echo_t;
 
 #pragma pack(0)
 
@@ -28,6 +27,7 @@ typedef struct opt_s {
 	char	verbose;
 	int		end_opt;
 	int		host_count;
+	bool	disabled_echo;
 }	opt_t;
 
 /**
@@ -36,12 +36,12 @@ typedef struct opt_s {
  *   contains:
  * - program options
  * - list of given IP/hostnames
- * - raw ethernet frame
  */
 typedef struct prog_s {
-	opt_t	opts;
-	ip_t	*ip_list;
-	icmp_t	icmp_pckt;
+	opt_t		opts;
+	ip_t		*ip_list;
+	//icmp_echo_t	icmp_echo_pckt;
+	void		*icmp_packet;
 }	prog_t;
 
 #define PARSE_ERROR 0

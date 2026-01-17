@@ -31,9 +31,9 @@ int handle_question_mark(char **argv) {
 }
 
 /**
- * @brief	save in param 'prog' the given host 
+ * @brief    save in param 'prog' the given host 
  * 
- * @param[in] optind	variable given by getopt_long() to know where start arguments while option sort is done
+ * @param[in] optind    variable given by getopt_long() to know where start arguments while option sort is done
  */
 static int save_given_hosts(int optind, int argc, char **argv, prog_t *prog) {
 	ip_t	*head = NULL;
@@ -49,19 +49,19 @@ static int save_given_hosts(int optind, int argc, char **argv, prog_t *prog) {
 }
 
 /**
- * @brief	parse program argument line and init option structure list 
+ * @brief    parse program argument line and init option structure list 
  *
- * @param[in] argc		argument line count
- * @param[in] argv		argument array
- * @param[out] prog		structure wich contains the whole program informations
+ * @param[in] argc      argument line count
+ * @param[in] argv      argument array
+ * @param[out] prog     structure wich contains the whole program informations
  *
- * @return	PARSE_OK (1) on success PARSE_ERROR (0) on failure
+ * @return    PARSE_OK (1) on success PARSE_ERROR (0) on failure
  */
 int parse_input(int argc, char **argv, prog_t *prog) {
 	int 			opt = 0;
 	struct option	*long_options = init_opt();
 
-	// @var opterr	set this param to 0 tells getopt_long() to not display any info on the standard output
+	//! @var opterr    set this param to 0 tells getopt_long() to not display any info on the standard output
 	opterr = 0;
 	while ((opt = getopt_long(argc, argv, "Vv?", long_options, NULL)) != -1) {
 		switch (opt) {

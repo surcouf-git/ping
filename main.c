@@ -1,3 +1,7 @@
+/**
+ * @author surcouf-git
+ */
+
 #include "utils.h"
 #include "ping.h"
 #include "parse_input.h"
@@ -21,6 +25,10 @@ static int run(int argc, char **argv, prog_t *prog) {
 
 	if (init_networking(prog) == NETWORKING_ERROR)
 		return (EXIT_FAILURE);
+
+	if (send_packet(prog) == NETWORKING_ERROR)
+		return (EXIT_FAILURE);
+
 	return (EXIT_SUCCESS);
 }
 
