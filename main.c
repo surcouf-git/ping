@@ -22,7 +22,16 @@ static void clean_up(prog_t *prog) {
 }
 
 /**
- * @brief     runtime function, call every needed function
+ * @brief     runtime function:
+ *
+ *              parse_input():
+ *                - parse the program input
+ *
+ *              init_networking():
+ *                - retreive given host(s), format and store infos
+ *
+ *              send_packet():
+ *                - send an incmp packet
  */
 int run(int argc, char **argv, prog_t *prog) {
 	if (parse_input(argc, argv, prog) == PARSE_ERROR)
@@ -31,7 +40,7 @@ int run(int argc, char **argv, prog_t *prog) {
 	if (init_networking(prog) == NETWORKING_ERROR)
 		return (EXIT_FAILURE);
 
-	if (send_packet(prog) == NETWORKING_ERROR)
+	if (routine(prog) == NETWORKING_ERROR)
 		return (EXIT_FAILURE);
 
 	return (EXIT_SUCCESS);
@@ -42,7 +51,7 @@ int main(int argc, char **argv) {
 
 	run(argc, argv, &prog); // TODO return ?
 
-	print_struct(&prog);
+	//print_struct(&prog);
 
 	clean_up(&prog);
 	return (0);

@@ -8,8 +8,8 @@ SOURCES=	src/*.c \
 
 INCLUDES= -I include/
 
-doxygen:
-	doxygen Doxyfile
+#doxygen:
+#	doxygen Doxyfile
 
 NAME: all
 

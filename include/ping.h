@@ -44,6 +44,7 @@ typedef struct opt_s {
  * - icmp packet
  */
 typedef struct prog_s {
+	int			socket;
 	opt_t		opts;
 	ip_t		*ip_list;
 	//icmp_echo_t	icmp_echo_pckt;
@@ -60,3 +61,4 @@ typedef struct prog_s {
 #define NO_HOST_GIVEN 0
 
 #define ECHO_REQEST 0
+#define ICMP_ECHO 8

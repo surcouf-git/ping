@@ -10,4 +10,6 @@ This project is a simple ping implementation
 ./ft_ping [option] [IP]
 
 ## see also
-[liens](../ressources/)
+[liens](ressources/)
+
+@ref ressources/
