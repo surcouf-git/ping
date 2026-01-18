@@ -1,3 +1,11 @@
+/**
+ * @file parse_input.c
+ * 
+ * @brief parse program given arguments
+ * 
+ * @author surcouf-git
+ */
+
 #include "parse_input.h"
 #include "messages.h"
 #include "utils.h"
@@ -7,11 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int check_argument_nb(int argc) {
-	return (argc == 1 ? print_err(EALONE, 2) : 1);
-}
-
-struct option *init_opt(void) {
+static struct option *init_opt(void) {
 	static struct option
 		long_options[] = {
 			{"help", no_argument, 0, '?'},
@@ -22,7 +26,7 @@ struct option *init_opt(void) {
 	return(long_options);
 }
 
-int handle_question_mark(char **argv) {
+static int handle_question_mark(char **argv) {
 	if (optopt == 0) return (print_help());
 
 	fprintf(stderr, "%s: invalid option -- '%c'\n", argv[0], optopt);
@@ -31,7 +35,7 @@ int handle_question_mark(char **argv) {
 }
 
 /**
- * @brief    save in param 'prog' the given host 
+ * @brief    save in param 'prog' the given host(s)
  * 
  * @param[in] optind    variable given by getopt_long() to know where start arguments while option sort is done
  */
@@ -61,7 +65,6 @@ int parse_input(int argc, char **argv, prog_t *prog) {
 	int 			opt = 0;
 	struct option	*long_options = init_opt();
 
-	//! @var opterr    set this param to 0 tells getopt_long() to not display any info on the standard output
 	opterr = 0;
 	while ((opt = getopt_long(argc, argv, "Vv?", long_options, NULL)) != -1) {
 		switch (opt) {

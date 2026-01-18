@@ -1,3 +1,11 @@
+/**
+ * @file networking.c
+ * 
+ * @brief extract the host(s) given via the program argument and build an echo packet
+ * 
+ * @author surcouf-git
+ */
+
 #include "networking.h"
 #include "ping.h"
 #include "utils.h"
@@ -92,12 +100,12 @@ static void set_data(icmp_echo_t *packet) {
 
 	int fd = open("/dev/random", O_RDONLY);
 	if (fd == -1) {
-		fprintf(stderr, "cannot open /dev/random\n"); // TODO
+		fprintf(stderr, "cannot open /dev/random\n"); // @todo handle error ?
 		return ;
 	}
 
 	if (read(fd, packet->data, 31) == -1) {
-		fprintf(stderr, "failed to read /dev/random\n"); // TODO
+		fprintf(stderr, "failed to read /dev/random\n"); // @todo handle error ?
 		close(fd);
 		return ;
 	}
@@ -108,8 +116,20 @@ static void set_data(icmp_echo_t *packet) {
 /**
  * @see https://datatracker.ietf.org/doc/html/rfc792
  * @see netinet/ip_icmp.h
+ * 
+ * @brief   this is what an icmp echo/reply packet look like
+ * 
+ *          bits  0            8           16           24           32
+ *                +--------------------------------------------------+
+ *                +    type    |    code    |        checksum        +
+ *                +--------------------------------------------------+
+ *                +        identifier       |     sequence number    +
+ *                +--------------------------------------------------+
+ *                +                   optional data                  +
+ *                +--------------------------------------------------+
+ *
  */
-static icmp_echo_t *build_echo_packet(prog_t *prog) {
+icmp_echo_t *build_echo_packet(prog_t *prog) {
 	static icmp_echo_t		icmp_echo_packet = {};
 
 	set_type(&icmp_echo_packet, ICMP_ECHO);
@@ -127,13 +147,14 @@ static icmp_echo_t *build_echo_packet(prog_t *prog) {
  * @brief   build an icmp packet depending on argument given to program (prog->opts)
  *          build an icmp echo by default if no program arguments says opposites
  *
- * @param[in][out] prog	[in]: indicates program options - [out]: attach icmp packet built to prog->icmp_packet
+ * @param[in, out] prog    [in]: indicates program options     
+ *                         [out]: attach icmp packet built to prog->icmp_packet
  */
-static void build_icmp_packet(prog_t *prog) {
+void build_icmp_packet(prog_t *prog) {
+
 	if (prog->opts.disabled_echo == false)
 		prog->icmp_packet = (void *)build_echo_packet(prog);
 
-	//checksum((icmp_echo_t)&prog->icmp_echo_pckt);
 }
 
 int init_networking(prog_t *prog) {

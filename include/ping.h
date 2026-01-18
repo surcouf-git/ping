@@ -1,3 +1,9 @@
+/**
+ * @file ping.h
+ * 
+ * @author surcouf-git
+ */
+
 #pragma once
 
 #include <stdint.h>
@@ -31,11 +37,11 @@ typedef struct opt_s {
 }	opt_t;
 
 /**
- * @brief main program structure
- *
+ * @struct prog_s main program structure
  *   contains:
  * - program options
  * - list of given IP/hostnames
+ * - icmp packet
  */
 typedef struct prog_s {
 	opt_t		opts;
@@ -54,6 +60,3 @@ typedef struct prog_s {
 #define NO_HOST_GIVEN 0
 
 #define ECHO_REQEST 0
-
-// init
-void	init(prog_t *prog);
