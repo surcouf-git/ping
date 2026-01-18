@@ -1,7 +1,6 @@
 /**
+ * @file main.c
  * 
- * @ref networking.c
- *
  * @author surcouf-git
  */
 
@@ -23,11 +22,9 @@ static void clean_up(prog_t *prog) {
 }
 
 /**
- * @brief     entry point
- * 
- * @public
+ * @brief     runtime function, call every needed function
  */
-static int run(int argc, char **argv, prog_t *prog) {
+int run(int argc, char **argv, prog_t *prog) {
 	if (parse_input(argc, argv, prog) == PARSE_ERROR)
 		return (EXIT_FAILURE);
 

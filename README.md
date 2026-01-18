@@ -1,5 +1,5 @@
 
-@mainpage ping
+@mainpage
 
 This project is a simple ping implementation
 ## functionalities
@@ -8,3 +8,8 @@ This project is a simple ping implementation
 
 ## usage
 ./ft_ping [option] [IP]
+
+## see also
+
+@ref ressources/
+[liens](ressources/) 
