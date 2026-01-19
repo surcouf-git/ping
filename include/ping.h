@@ -21,6 +21,13 @@ typedef struct icmp_echo_s {
 	char		data[32];
 }	icmp_echo_t;
 
+typedef struct opti_s {
+	char			garbage[12];
+	unsigned int	ip_source;
+	unsigned int	ip_dest;
+	icmp_echo_t		icmp_packet;
+}	opti_t;
+
 #pragma pack(0)
 
 typedef struct ip_s {
@@ -30,6 +37,7 @@ typedef struct ip_s {
 }	ip_t;
 
 typedef struct opt_s {
+	long	ping_count;
 	char	verbose;
 	int		end_opt;
 	int		host_count;

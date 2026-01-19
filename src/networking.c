@@ -13,10 +13,14 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <stdbool.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <unistd.h>
+
 
 static int init_socket(prog_t *prog) {
 	prog->socket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
@@ -40,7 +44,7 @@ int init_networking(prog_t *prog) {
 	return (NETWORKING_SUCCESS);
 }
 
-static struct sockaddr_in fill_client_infos(ip_t client) {
+struct sockaddr_in fill_client_infos(ip_t client) {
 	struct sockaddr_in infos = {};
 
 	infos.sin_family = AF_INET;
@@ -49,38 +53,26 @@ static struct sockaddr_in fill_client_infos(ip_t client) {
 	return (infos);
 }
 
-static int send_to_client(int socket, icmp_echo_t packet, ip_t client) {
-	struct sockaddr_in client_infos = fill_client_infos(client);
-
-	int bytes_sent = sendto(
-				socket, 
-				(void *)&packet, 
-				sizeof(icmp_echo_t), 0,
-				(struct sockaddr *)&client_infos, 
-				sizeof(struct sockaddr_in)
-			);
-
-	if (bytes_sent == -1) {
-		// TODO error
-		fprintf(stderr, "Failed to send to client\n");
-		return (NETWORKING_ERROR);
-	}
-	printf("Bytes sents: %i\n", bytes_sent);
-	return (NETWORKING_SUCCESS);
-}
-
-static int send_packet(int socket, ip_t client) {
+int ping(int socket, ip_t client, opt_t opts) {
 	icmp_echo_t packet = {};
 	int packet_number = 0;
+	uint16_t identifier = getpid();
 
-	while (packet_number < 3) { // TODO while true
-		packet = build_echo_packet(0, packet_number);
+	printf("identifier: %u\n", identifier);
+
+	while (PACKET_COUNT) { // TODO while true
+
+		packet = build_echo_packet(identifier, packet_number);
 
 		if (send_to_client(socket, packet, client) == NETWORKING_ERROR)
-			return (NETWORKING_ERROR); // TODO 
+			return (NETWORKING_ERROR); // TODO
 
+			
+		if (receive_from_client(socket, client, identifier) == NETWORKING_ERROR)
+			return (NETWORKING_ERROR);
+			
 		packet_number++;
-
+		sleep(1);
 	}
 	return (PROCEED_NEXT_CLIENT);
 }
@@ -92,13 +84,14 @@ static int send_packet(int socket, ip_t client) {
 int routine(prog_t *prog) {
 	ip_t *clients = prog->ip_list;
 	
+	printf("sizeof packet: %lu\n", sizeof(icmp_echo_t));
 	while (clients) {
 
-		if (send_packet(prog->socket, *clients) == ROUTINE_NEED_STOP)
-			break ; // TODO what to do ?
+		if (ping(prog->socket, *clients, prog->opts) == ROUTINE_NEED_STOP)
+			break ;
 
 		clients = clients->next;
-	}
 
+	}
 	return (NETWORKING_SUCCESS);
 }

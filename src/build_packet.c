@@ -24,11 +24,11 @@ static void set_code(icmp_echo_t *packet, uint8_t code) {
 }
 
 static void set_identifier(icmp_echo_t *packet, uint16_t identifier) {
-	packet->identifier = identifier;
+	packet->identifier = htons(identifier);
 }
 
 static void set_sequence_number(icmp_echo_t *packet, uint16_t sequence_number) {
-	packet->sequence_number = sequence_number;
+	packet->sequence_number = htons(sequence_number);
 }
 
 uint16_t checksum(const void *data, size_t length) {

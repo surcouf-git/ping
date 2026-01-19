@@ -14,6 +14,7 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 static struct option *init_opt(void) {
 	static struct option
@@ -21,6 +22,7 @@ static struct option *init_opt(void) {
 			{"help", no_argument, 0, '?'},
 			{"verbose", no_argument, 0, 'v'},
 			{"version", no_argument, 0, 'V'},
+			{"count", required_argument, 0, 'c'},
 			{0, 0, 0, 0}
 		};
 	return(long_options);
@@ -53,7 +55,15 @@ static int save_given_hosts(int optind, int argc, char **argv, prog_t *prog) {
 }
 
 /**
- * @brief    parse program argument line and init option structure list 
+ * @todo refactor
+ */
+static void extract_count(prog_t *prog, const char *count) {
+	long number = atol(count);
+	prog->opts.ping_count = (number == -1 ? 0 : number);
+}
+
+/**
+ * @brief    parse program argument line and init option structure list
  *
  * @param[in] argc      argument line count
  * @param[in] argv      argument array
@@ -66,12 +76,15 @@ int parse_input(int argc, char **argv, prog_t *prog) {
 	struct option	*long_options = init_opt();
 
 	opterr = 0;
-	while ((opt = getopt_long(argc, argv, "Vv?", long_options, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "Vvc:?", long_options, NULL)) != -1) {
 		switch (opt) {
 			case ('?'):
 				return (handle_question_mark(argv));
 			case ('v'):
 				prog->opts.verbose = ENABLE_OPT;
+				break ;
+			case ('c'):
+				extract_count(prog, optarg);
 				break ;
 		}
 	}
