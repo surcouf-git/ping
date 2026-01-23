@@ -23,6 +23,7 @@ static struct option *init_opt(void) {
 			{"verbose", no_argument, 0, 'v'},
 			{"version", no_argument, 0, 'V'},
 			{"count", required_argument, 0, 'c'},
+			{"size", required_argument, 0, 's'},
 			{0, 0, 0, 0}
 		};
 	return(long_options);
@@ -57,9 +58,23 @@ static int save_given_hosts(int optind, int argc, char **argv, prog_t *prog) {
 /**
  * @todo refactor
  */
-static void extract_count(prog_t *prog, const char *count) {
+static void handle_count(prog_t *prog, const char *count) {
 	long number = atol(count);
 	prog->opts.ping_count = (number == -1 ? 0 : number);
+}
+
+//! @todo doxygen ptr_size ?
+static void handle_data_size(prog_t *prog, const char *data_size) {
+	prog->opts.data_size = atol(data_size);
+
+	if (prog->opts.data_size < 0) {
+		fprintf(stderr, "ft_ping: option value too low: -1\nDefault value set: 0\n");
+		prog->opts.data_size = 0;
+		return ;
+	} else if (prog->opts.data_size > MAX_DATA_SIZE) {
+		fprintf(stderr, "ft_ping: option value too high: %d\nMax value value set: %d\n", prog->opts.data_size, MAX_DATA_SIZE);
+		prog->opts.data_size = MAX_DATA_SIZE;
+	}
 }
 
 /**
@@ -72,11 +87,11 @@ static void extract_count(prog_t *prog, const char *count) {
  * @return    PARSE_OK (1) on success PARSE_ERROR (0) on failure
  */
 int parse_input(int argc, char **argv, prog_t *prog) {
-	int 			opt = 0;
+	int				opt = 0;
 	struct option	*long_options = init_opt();
 
 	opterr = 0;
-	while ((opt = getopt_long(argc, argv, "Vvc:?", long_options, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "Vvc:?s:", long_options, NULL)) != -1) {
 		switch (opt) {
 			case ('?'):
 				return (handle_question_mark(argv));
@@ -84,7 +99,10 @@ int parse_input(int argc, char **argv, prog_t *prog) {
 				prog->opts.verbose = ENABLE_OPT;
 				break ;
 			case ('c'):
-				extract_count(prog, optarg);
+				handle_count(prog, optarg);
+				break ;
+			case ('s'):
+				handle_data_size(prog, optarg);
 				break ;
 		}
 	}

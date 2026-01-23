@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <errno.h>
+#include <arpa/inet.h>
 
 static struct addrinfo *set_addrinfo_hints(void) {
 	static struct addrinfo hint = {
@@ -18,12 +19,16 @@ static struct addrinfo *set_addrinfo_hints(void) {
 	return (&hint);
 }
 
+/**
+ * @todo refactor this shit
+ */
 static int extract_ip(ip_t *host_ptr, struct addrinfo *hint) {
 	struct addrinfo *response = NULL;
 
 	if (getaddrinfo(host_ptr->raw_hostname, NULL, hint, &response) == 0) {
 		struct sockaddr_in *addr = (struct sockaddr_in *)response->ai_addr;
 		host_ptr->decimal_ip = ntohl(addr->sin_addr.s_addr);
+
 	} else {
 		gai_strerror(errno); // TODO return what on error ?
 	}

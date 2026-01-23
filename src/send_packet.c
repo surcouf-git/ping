@@ -4,16 +4,20 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <time.h>
 
 
-int send_to_client(int socket, icmp_echo_t packet, ip_t client) {
+int send_to_client(int socket, icmp_echo_t *packet, ip_t client, size_t data_size, elapsed_time_t *timer) {
 	struct sockaddr_in client_infos = fill_client_infos(client);
 
+	clock_gettime(CLOCK_MONOTONIC, &timer->start_time);
+
 	int bytes_sent = sendto(
-				socket, 
-				(void *)&packet, 
-				sizeof(icmp_echo_t), 0,
-				(struct sockaddr *)&client_infos, 
+				socket,
+				(void *)packet,
+				sizeof(icmp_echo_t) + data_size,
+				0,
+				(struct sockaddr *)&client_infos,
 				sizeof(struct sockaddr_in)
 			);
 
@@ -24,6 +28,5 @@ int send_to_client(int socket, icmp_echo_t packet, ip_t client) {
 		
 		return (NETWORKING_ERROR);
 	}
-	printf("Bytes sents: %i\n", bytes_sent);
 	return (NETWORKING_SUCCESS);
 }

@@ -47,7 +47,7 @@ int run(int argc, char **argv, prog_t *prog) {
 }
 
 int main(int argc, char **argv) {
-	prog_t	prog = {};
+	prog_t	prog = { .opts.data_size = 40 };
 
 	run(argc, argv, &prog); // TODO return ?
 

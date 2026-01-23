@@ -19,16 +19,33 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <unistd.h>
+#include <stdlib.h>
+#include <sys/time.h>
 
 
-static int init_socket(prog_t *prog) {
-	prog->socket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-	if (prog->socket == -1) {
+static int create_socket(void) {
+	int sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+	if (sock == -1) {
 		// TODO wich error ?
 		fprintf(stderr, "Error while creating socket (errno:%d)! \n", errno);
 		return (NETWORKING_ERROR);
 	}
+	return (sock);
+}
+
+//static void set_socket_timeout(int socket, int timeout) {
+//	struct timeval tv = {};
+//	tv.tv_sec = timeout;
+//	tv.tv_usec = 0;
+
+//	setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+//}
+
+static int init_socket(prog_t *prog) {
+	prog->socket = create_socket();
+	if (prog->socket == -1) return (NETWORKING_ERROR);
+
+	//set_socket_timeout(prog->socket, 5);
 	return (NETWORKING_SUCCESS);
 }
 
@@ -53,26 +70,26 @@ struct sockaddr_in fill_client_infos(ip_t client) {
 	return (infos);
 }
 
-int ping(int socket, ip_t client, opt_t opts) {
-	icmp_echo_t packet = {};
-	int packet_number = 0;
-	uint16_t identifier = getpid();
-
-	printf("identifier: %u\n", identifier);
+int ping(int socket, ip_t client, opt_t opts, uint16_t identifier) {
+	icmp_echo_t		*packet = NULL;
+	size_t			data_size = opts.data_size;
+	int				packet_number = 0;
+	elapsed_time_t	timer = {};
 
 	while (PACKET_COUNT) { // TODO while true
 
-		packet = build_echo_packet(identifier, packet_number);
+		packet = build_echo_packet(identifier, packet_number, data_size);
 
-		if (send_to_client(socket, packet, client) == NETWORKING_ERROR)
+		if (send_to_client(socket, packet, client, data_size, &timer) == NETWORKING_ERROR)
 			return (NETWORKING_ERROR); // TODO
 
-			
-		if (receive_from_client(socket, client, identifier) == NETWORKING_ERROR)
+		if (receive_from_client(socket, opts, identifier, data_size, &timer) == NETWORKING_ERROR)
 			return (NETWORKING_ERROR);
 			
 		packet_number++;
 		sleep(1);
+
+		clean_packet(packet);
 	}
 	return (PROCEED_NEXT_CLIENT);
 }
@@ -82,16 +99,20 @@ int ping(int socket, ip_t client, opt_t opts) {
  *       proceed errors, set good loop condition....
  */
 int routine(prog_t *prog) {
-	ip_t *clients = prog->ip_list;
+	ip_t *client = prog->ip_list;
 	
-	printf("sizeof packet: %lu\n", sizeof(icmp_echo_t));
-	while (clients) {
+	while (client) {
 
-		if (ping(prog->socket, *clients, prog->opts) == ROUTINE_NEED_STOP)
+		uint16_t identifier = getpid();
+
+		print_header(client, prog->opts, identifier);
+
+		if (ping(prog->socket, *client, prog->opts, identifier) == ROUTINE_NEED_STOP)
 			break ;
 
-		clients = clients->next;
+		print_stats();
 
+		client = client->next;
 	}
 	return (NETWORKING_SUCCESS);
 }

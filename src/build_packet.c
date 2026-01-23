@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static void set_type(icmp_echo_t *packet, uint8_t type) {
 	packet->type = type;
@@ -50,23 +51,11 @@ uint16_t checksum(const void *data, size_t length) {
 }
 
 /**
- * @todo doxygen ?
+ * @todo doxygen sizeof ptr ?
  */
-static void set_data(icmp_echo_t *packet) {
-
-	int fd = open("/dev/random", O_RDONLY);
-	if (fd == -1) {
-		fprintf(stderr, "cannot open /dev/random\n"); //! @todo handle error ?
-		return ;
-	}
-
-	if (read(fd, packet->data, 31) == -1) {
-		fprintf(stderr, "failed to read /dev/random\n"); //! @todo handle error ?
-		close(fd);
-		return ;
-	}
-	packet->data[31] = 0;
-	close(fd);
+static void set_data(icmp_echo_t *packet, size_t data_size) {
+	(void)packet; (void)data_size;
+	//packet->data = malloc(data_size);
 }
 
 /**
@@ -88,16 +77,16 @@ static void set_data(icmp_echo_t *packet) {
  * @see https://datatracker.ietf.org/doc/html/rfc792
  * @see netinet/ip_icmp.h
  */
-icmp_echo_t build_echo_packet(uint16_t identifier, uint16_t sequence_number) {
-	icmp_echo_t		icmp_echo_packet = {};
+icmp_echo_t *build_echo_packet(uint16_t identifier, uint16_t sequence_number, size_t data_size) {
+	icmp_echo_t *icmp_echo_packet = calloc(1, sizeof(icmp_echo_t) + data_size);
 
-	set_type(&icmp_echo_packet, ICMP_ECHO);
-	set_code(&icmp_echo_packet, ECHO_REQEST);
-	set_identifier(&icmp_echo_packet, identifier);
-	set_sequence_number(&icmp_echo_packet, sequence_number);
-	set_data(&icmp_echo_packet);
+	set_type(icmp_echo_packet, ICMP_ECHO);
+	set_code(icmp_echo_packet, ECHO_REQEST);
+	set_identifier(icmp_echo_packet, identifier);
+	set_sequence_number(icmp_echo_packet, sequence_number);
+	set_data(icmp_echo_packet, data_size);
 
-	icmp_echo_packet.checksum = checksum((void *)&icmp_echo_packet, sizeof(icmp_echo_t));
+	icmp_echo_packet->checksum = checksum((void *)icmp_echo_packet, sizeof(icmp_echo_t));
 
 	return (icmp_echo_packet);
 }
@@ -109,9 +98,9 @@ icmp_echo_t build_echo_packet(uint16_t identifier, uint16_t sequence_number) {
  * @param[in, out] prog    [in]: indicates program options     
  *                         [out]: attach icmp packet built to prog->icmp_packet
  */
-void build_icmp_packet(prog_t *prog) {
+//void build_icmp_packet(prog_t *prog) {
 
 	//if (prog->opts.disabled_echo == false)
 	//	prog->icmp_packet = (void *)build_echo_packet(prog);
 
-}
+//}
